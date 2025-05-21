@@ -2,9 +2,9 @@
 Add a basic smoke-test target below.
 """
 
-load("@aspect_rules_py//py:defs.bzl", "py_binary")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@rules_gemini//src:defs.bzl", "gemini_tool", "generate_content")
+load("@rules_python//python:py_binary.bzl", "py_binary")
 
 # Replace with a usage of your rule/macro
 generate_content(
@@ -20,15 +20,16 @@ py_binary(
     srcs = ["dog.py"],
 )
 
-sh_binary(
-    name = "cores",
-    srcs = ["cores.sh"],
+py_binary(
+    name = "cores_py",
+    srcs = ["cores.py"],
+    main = "cores.py",
 )
 
 gemini_tool(
     name = "get_cores",
     description = "Returns the number of processing cores available on the local computer",
-    tool = ":cores",
+    tool = ":cores_py",
 )
 
 write_file(

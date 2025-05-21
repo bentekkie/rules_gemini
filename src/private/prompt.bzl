@@ -1,5 +1,7 @@
 """Provided generate_content"""
 
+load("@rules_python//python:py_binary.bzl", "py_binary")
+
 GeminiStateInfo = provider(
     doc = "Description of provider GeminiState",
     fields = {
@@ -11,6 +13,7 @@ GeminiToolInfo = provider(
     doc = "Description of provider GeminiTool",
     fields = {
         "tool": "Tool label",
+        "target": "Target label",
         "declaration": "Declaration of the tool",
     },
 )
@@ -85,13 +88,22 @@ def _gemini_tool_implementation(ctx):
             },
             "required": list(ctx.attr.parameters.keys()),
         }
-    return [DefaultInfo(
-        files = ctx.attr.tool[DefaultInfo].files,
-        runfiles = ctx.attr.tool[DefaultInfo].default_runfiles,
-    ), GeminiToolInfo(
-        tool = ctx.executable.tool,
-        declaration = declaration,
-    )]
+
+    runfiles = ctx.runfiles()
+    runfiles = runfiles.merge(ctx.attr.tool.default_runfiles)
+    ctx.actions.symlink(output = ctx.outputs.executable, target_file = ctx.attr.tool.files_to_run.executable, is_executable = True)
+
+    return [
+        DefaultInfo(
+            executable = ctx.outputs.executable,
+            runfiles = runfiles,
+        ),
+        GeminiToolInfo(
+            target = ctx.attr.tool,
+            tool = ctx.attr.tool.files_to_run.executable,
+            declaration = declaration,
+        ),
+    ]
 
 gemini_tool = rule(
     implementation = _gemini_tool_implementation,
@@ -107,7 +119,7 @@ gemini_tool = rule(
             providers = [GeminiToolArgInfo],
         ),
     },
-    executable = False,
+    executable = True,
     test = False,
 )
 
@@ -135,24 +147,26 @@ def _generate_content_implementation(ctx):
         tool_config_file = ctx.actions.declare_file(ctx.attr.name + ".toolconfig.json")
         tool_config = {}
         for t in ctx.attr.tools:
+            tool_label = ctx.attr.tools[t]
+            tool_info = tool_label[GeminiToolInfo]
             tool_config[t] = {
-                "executable": ctx.attr.tools[t][GeminiToolInfo].tool.path,
-                "declaration": ctx.attr.tools[t][GeminiToolInfo].declaration,
+                "executable": tool_label.files_to_run.executable.path,
+                "declaration": tool_info.declaration,
             }
-            tools.append(ctx.attr.tools[t][GeminiToolInfo].tool)
-            tools.append(ctx.attr.tools[t][DefaultInfo].default_runfiles.files)
-            tools.append(ctx.attr.tools[t][DefaultInfo].data_runfiles.files)
-            tools.append(ctx.attr.tools[t][DefaultInfo].files)
+            tools.append(tool_label.files_to_run.executable)
+            tools.append(tool_label.default_runfiles.files)
         ctx.actions.write(tool_config_file, json.encode(tool_config))
         args.add("--tool_config_file", tool_config_file)
         inputs.append(tool_config_file)
 
     ctx.actions.run(
-        executable = ctx.executable._generate_content_bin,
+        executable = ctx.executable.generate_content_bin,
         arguments = [args],
         inputs = inputs,
-        tools = tools,
+        tools = tools + [ctx.executable.generate_content_bin],
         outputs = [ctx.outputs.out],
+        mnemonic = "GenerateContent",
+        progress_message = "Populating %{output} with ✨...",
         env = {
             "GOOGLE_API_KEY": info.api_key,
         },
@@ -162,10 +176,9 @@ def _generate_content_implementation(ctx):
         },
     )
 
-    return [DefaultInfo(
-    )]
+    return [DefaultInfo()]
 
-generate_content = rule(
+_generate_content = rule(
     implementation = _generate_content_implementation,
     attrs = {
         "prompt": attr.label(
@@ -181,14 +194,14 @@ generate_content = rule(
         ),
         "tools": attr.string_keyed_label_dict(
             providers = [GeminiToolInfo],
+            cfg = "exec",
         ),
         "start_delimiter": attr.string(),
         "end_delimiter": attr.string(),
         "out": attr.output(),
-        "_generate_content_bin": attr.label(
+        "generate_content_bin": attr.label(
             default = Label("//src/private:generate_content"),
             executable = True,
-            allow_files = True,
             cfg = "exec",
         ),
     },
@@ -196,3 +209,33 @@ generate_content = rule(
     test = False,
     toolchains = ["//src:toolchain_type"],
 )
+
+def generate_content(name, tools = None, **kwargs):
+    """Wrapper around generate_content
+
+    Args:
+        name: name of the target
+        tools: dict of tools
+        **kwargs: other arguments
+    """
+    data = []
+    if tools:
+        data = [t for _, t in tools.items()]
+
+    py_binary(
+        name = name + "_generate_content",
+        srcs = [Label("//src/private:generate_content.py")],
+        main = Label("//src/private:generate_content.py"),
+        deps = [
+            Label("@pypi//google_genai"),
+            Label("@pypi//bazel_runfiles"),
+        ],
+        data = data,
+    )
+
+    _generate_content(
+        name = name,
+        generate_content_bin = name + "_generate_content",
+        tools = tools,
+        **kwargs
+    )

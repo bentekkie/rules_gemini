@@ -1,4 +1,6 @@
 from google import genai
+import os
+from runfiles import Runfiles
 from google.genai.types import (
     GenerateContentConfig,
     Tool,
@@ -64,6 +66,9 @@ if __name__ == "__main__":
     if args.src_file:
         for file in args.src_file:
             contents.append(UserContent(client.files.upload(file=file)))
+    r = Runfiles.Create()
+    if not r:
+        exit(1)
     while True:
         resp = client.models.generate_content(
             model=args.model,
@@ -88,13 +93,16 @@ if __name__ == "__main__":
                 cmd = [tool["executable"]]
                 if part.function_call.args:
                     cmd.extend(f"{k}={v}" for k, v in part.function_call.args.items())
-                output = check_output(cmd)
+                output = check_output(cmd, shell=True)
+                response = loads(output)
+                if not isinstance(response, dict):
+                    response = {"response": response}
                 function_responses.append(
                     Part(
                         function_response=FunctionResponse(
                             name=part.function_call.name,
                             id=part.function_call.id,
-                            response=loads(output),
+                            response=response,
                         )
                     )
                 )

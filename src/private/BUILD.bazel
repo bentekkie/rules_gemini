@@ -1,6 +1,7 @@
-load("@aspect_rules_py//py:defs.bzl", "py_binary", "resolutions")
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load("@pypi//:requirements.bzl", "all_whl_requirements_by_package", "requirement")
+load("@rules_python//python:py_binary.bzl", "py_binary")
+
+exports_files(["generate_content.py"])
 
 bzl_library(
     name = "toolchains_repo",
@@ -23,5 +24,8 @@ bzl_library(
 py_binary(
     name = "generate_content",
     srcs = ["generate_content.py"],
-    resolutions = resolutions.from_requirements(all_whl_requirements_by_package, requirement),
+    deps = [
+        "@pypi//bazel_runfiles",
+        "@pypi//google_genai",
+    ],
 )
