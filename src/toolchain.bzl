@@ -6,6 +6,7 @@ GeminiModelInfo = provider(
     fields = {
         "model": "Model",
         "api_key": "API Key",
+        "random": "Random",
     },
 )
 
@@ -14,6 +15,7 @@ def _gemini_toolchain_impl(ctx):
     gemini_model_info = GeminiModelInfo(
         model = ctx.attr.model,
         api_key = ctx.attr.api_key,
+        random = ctx.attr.random,
     )
 
     # Export all the providers inside our ToolchainInfo
@@ -38,6 +40,7 @@ gemini_toolchain = rule(
             doc = "API Key",
             mandatory = False,
         ),
+        "random": attr.string(),
     },
     doc = """Defines a gemini model""",
 )

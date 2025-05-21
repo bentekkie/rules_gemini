@@ -1,5 +1,4 @@
 from google import genai
-import os
 from runfiles import Runfiles
 from google.genai.types import (
     GenerateContentConfig,
@@ -33,6 +32,7 @@ if __name__ == "__main__":
     parser.add_argument("--tool_config_file", type=str)
     parser.add_argument("--start_delimiter", type=str)
     parser.add_argument("--end_delimiter", type=str)
+    parser.add_argument("--random", type=str)
 
 
     args = parser.parse_args()
@@ -67,7 +67,6 @@ if __name__ == "__main__":
             parts.append(client.files.upload(file=file))
     parts.append(Part.from_bytes(data=prompt, mime_type="text/plain"))
     contents: list[Content] = [UserContent(parts)]
-    print(contents)
     r = Runfiles.Create()
     if not r:
         exit(1)

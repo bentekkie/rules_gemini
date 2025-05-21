@@ -263,7 +263,7 @@
     },
     "@@rules_gemini+//src:extensions.bzl%gemini": {
       "general": {
-        "bzlTransitiveDigest": "ntMijtw3hyMsvfSF9oMw4b1lxUKAFw71V5dADJiisPc=",
+        "bzlTransitiveDigest": "QEa8OqIjn3YoyvBGFu7uvsFKrMWIEyMDSgA63cRqlf8=",
         "usagesDigest": "cO7ZoA2zwrLUKzlkDhVuNLyeOG+1RfQlUD3+O+4Upf0=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},

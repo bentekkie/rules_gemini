@@ -130,6 +130,7 @@ def _generate_content_implementation(ctx):
         args.add("--end_delimiter", ctx.attr.end_delimiter)
     args.add("--output_file", ctx.outputs.out.path)
     args.add("--model", info.model)
+    args.add("--random", info.random)
     args.add("--prompt_file", ctx.file.prompt.path)
     inputs = []
     inputs.extend(ctx.files.prompt)
