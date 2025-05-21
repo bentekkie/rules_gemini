@@ -14,6 +14,6 @@ Features:
 
 - [x] Basic prompting
 - [x] Use bazel target as a tool
-- [] Specify args for bazel tool target
-- [] Add files to context (untested)
-- [] Add system prompt (untested)
+- [ ] Specify args for bazel tool target
+- [ ] Add files to context (untested)
+- [ ] Add system prompt (untested)
