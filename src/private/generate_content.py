@@ -107,12 +107,7 @@ if __name__ == "__main__":
             elif part.text:
                 text += part.text
         if function_responses:
-            contents.append(
-                Content(
-                    role="user",
-                    parts=function_responses,
-                )
-            )
+            contents.append(UserContent(function_responses))
             continue
         break
     with open(args.output_file, "w") as f:

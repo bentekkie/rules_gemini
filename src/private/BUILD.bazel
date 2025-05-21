@@ -19,6 +19,7 @@ bzl_library(
     name = "prompt",
     srcs = ["prompt.bzl"],
     visibility = ["//src:__subpackages__"],
+    deps = ["@rules_python//python:py_binary_bzl"],
 )
 
 py_binary(

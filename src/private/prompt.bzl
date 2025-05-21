@@ -169,6 +169,7 @@ def _generate_content_implementation(ctx):
         env = {
             "GOOGLE_API_KEY": info.api_key,
         },
+        use_default_shell_env = True,
         execution_requirements = {
             "no-cache": "1",
             "requires-network": "1",

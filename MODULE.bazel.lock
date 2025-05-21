@@ -177,7 +177,7 @@
   "moduleExtensions": {
     "//src:extensions.bzl%gemini": {
       "general": {
-        "bzlTransitiveDigest": "ntMijtw3hyMsvfSF9oMw4b1lxUKAFw71V5dADJiisPc=",
+        "bzlTransitiveDigest": "QEa8OqIjn3YoyvBGFu7uvsFKrMWIEyMDSgA63cRqlf8=",
         "usagesDigest": "7MwlUIje1dpmtqNZ5bm/2XT2DURXs/AxI6aaDrdmfDU=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},

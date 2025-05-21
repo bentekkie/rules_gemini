@@ -1,7 +1,6 @@
 # See CONTRIBUTING.md for instructions.
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
-
 # Commitizen runs in commit-msg stage
 # but we don't want to run the other hooks on commit messages
 default_stages: [commit]
@@ -52,7 +51,7 @@ repos:
       - id: yamlfmt
         exclude: |
           (?x)^(
-            .bcr/config.yml
+            .bcr/config.yml|renovate.json
           )
   - repo: https://github.com/crate-ci/typos
     rev: v1.32.0
