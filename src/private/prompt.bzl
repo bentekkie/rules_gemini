@@ -11,7 +11,7 @@ GeminiToolInfo = provider(
     doc = "Description of provider GeminiTool",
     fields = {
         "tool": "Tool label",
-        "description": "Description of the tool",
+        "declaration": "Declaration of the tool",
     },
 )
 
@@ -72,20 +72,25 @@ gemini_tool_arg = rule(
 )
 
 def _gemini_tool_implementation(ctx):
-    return [DefaultInfo(), GeminiToolInfo(
-        tool = ctx.attr.tool,
-        declaration = {
-            "name": ctx.attr.name,
-            "description": ctx.attr.description,
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    k: v[GeminiToolArgInfo].json
-                    for k, v in ctx.attr.args.items()
-                },
-                "required": list(ctx.attr.args.keys()),
+    declaration = {
+        "name": ctx.attr.name,
+        "description": ctx.attr.description,
+    }
+    if ctx.attr.parameters:
+        declaration["parameters"] = {
+            "type": "object",
+            "properties": {
+                k: v[GeminiToolArgInfo].json
+                for k, v in ctx.attr.parameters.items()
             },
-        },
+            "required": list(ctx.attr.parameters.keys()),
+        }
+    return [DefaultInfo(
+        files = ctx.attr.tool[DefaultInfo].files,
+        runfiles = ctx.attr.tool[DefaultInfo].default_runfiles,
+    ), GeminiToolInfo(
+        tool = ctx.executable.tool,
+        declaration = declaration,
     )]
 
 gemini_tool = rule(
@@ -98,7 +103,7 @@ gemini_tool = rule(
             cfg = "exec",
         ),
         "description": attr.string(),
-        "args": attr.label_list(
+        "parameters": attr.label_list(
             providers = [GeminiToolArgInfo],
         ),
     },
@@ -108,7 +113,6 @@ gemini_tool = rule(
 
 def _generate_content_implementation(ctx):
     info = ctx.toolchains["//src:toolchain_type"].gemini_model_info
-    tools = [ctx.attr.tools[t] for t in ctx.attr.tools]
     args = ctx.actions.args()
     if ctx.attr.start_delimiter:
         args.add("--start_delimiter", ctx.attr.start_delimiter)
@@ -126,16 +130,20 @@ def _generate_content_implementation(ctx):
         args.add("--system_prompt", ctx.file.system_prompt)
         inputs.append(ctx.file.system_prompt)
 
+    tools = []
     if ctx.attr.tools:
         tool_config_file = ctx.actions.declare_file(ctx.attr.name + ".toolconfig.json")
         tool_config = {}
         for t in ctx.attr.tools:
             tool_config[t] = {
-                "executable": ctx.attr.tools[t][GeminiToolInfo].tool,
+                "executable": ctx.attr.tools[t][GeminiToolInfo].tool.path,
                 "declaration": ctx.attr.tools[t][GeminiToolInfo].declaration,
             }
             tools.append(ctx.attr.tools[t][GeminiToolInfo].tool)
-        ctx.actions.write_file(tool_config_file, json.dumps(tool_config))
+            tools.append(ctx.attr.tools[t][DefaultInfo].default_runfiles.files)
+            tools.append(ctx.attr.tools[t][DefaultInfo].data_runfiles.files)
+            tools.append(ctx.attr.tools[t][DefaultInfo].files)
+        ctx.actions.write(tool_config_file, json.encode(tool_config))
         args.add("--tool_config_file", tool_config_file)
         inputs.append(tool_config_file)
 

@@ -164,6 +164,38 @@
   },
   "selectedYankedVersions": {},
   "moduleExtensions": {
+    "//src:extensions.bzl%gemini": {
+      "general": {
+        "bzlTransitiveDigest": "lCf5xFBty/nCHPVWL54WSzId62gxL8b2td+cB5KxcSI=",
+        "usagesDigest": "lToxxcjYWsOa8wgW5sghCP7/d+bWMyFKCIEKufD8lGA=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "gemini": {
+            "bzlFile": "@@//src:repositories.bzl",
+            "ruleClassName": "gemini_repositories",
+            "attributes": {
+              "model": "gemini-2.0-flash"
+            }
+          },
+          "gemini_toolchains": {
+            "bzlFile": "@@//src/private:toolchains_repo.bzl",
+            "ruleClassName": "toolchains_repo",
+            "attributes": {
+              "user_repository_name": "gemini"
+            }
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "",
+            "bazel_tools",
+            "bazel_tools"
+          ]
+        ]
+      }
+    },
     "@@apple_support~//crosstool:setup.bzl%apple_cc_configure_extension": {
       "general": {
         "bzlTransitiveDigest": "PjIds3feoYE8SGbbIq2SFTZy3zmxeO2tQevJZNDo7iY=",

@@ -41,15 +41,15 @@ if __name__ == "__main__":
         with open(args.system_prompt_file, "r") as f:
             system_prompt = f.read()
 
-    tool_config: dict[str, ToolInfo] = {}
+    tool_config: dict[str, dict] = {}
 
     if args.tool_config_file:
         with open(args.tool_config_file, "r") as f:
-            tool_config: dict[str, ToolInfo] = load(f)
+            tool_config = load(f)
 
     tools: list[Tool] = []
     for name, info in tool_config.items():
-        tools.append(Tool(function_declarations=[info.declaration]))
+        tools.append(Tool(function_declarations=[info["declaration"]]))
 
     config = GenerateContentConfig(tools=tools)
     if args.system_prompt_file:
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         for part in content.parts:
             if part.function_call and part.function_call.name in tool_config:
                 tool = tool_config[part.function_call.name]
-                cmd = [tool.executable]
+                cmd = [tool["executable"]]
                 if part.function_call.args:
                     cmd.extend(f"{k}={v}" for k, v in part.function_call.args.items())
                 output = check_output(cmd)

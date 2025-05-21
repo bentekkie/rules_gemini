@@ -14,6 +14,9 @@ anyio==4.9.0 \
     # via
     #   google-genai
     #   httpx
+bazel-runfiles==1.4.1 \
+    --hash=sha256:90e9561ad31708b1f7590af817cfc1251153e981ee103a6be8e632845d696f74
+    # via -r src/requirements.in
 cachetools==5.5.2 \
     --hash=sha256:1a661caa9175d26759571b2e19580f9d6393969e5dfca11fdb1f947a23e640d4 \
     --hash=sha256:d26a22bcc62eb95c3beabd9f1ee5e820d3d2704fe2967cbe350e20c8ffcd3f0a

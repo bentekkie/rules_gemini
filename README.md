@@ -13,5 +13,7 @@ Now you can call the generate_content Gemini api as a build rule
 Features:
 
 [x] Basic prompting
+[x] Use bazel target as a tool
+[] Specify args for bazel tool target
 [] Add files to context (untested)
 [] Add system prompt (untested)

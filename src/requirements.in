@@ -1,1 +1,2 @@
 google-genai~=1.16.1
+bazel-runfiles~=1.4.1
