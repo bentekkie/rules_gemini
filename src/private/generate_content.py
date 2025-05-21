@@ -1,5 +1,4 @@
 from google import genai
-from runfiles import Runfiles
 from google.genai.types import (
     GenerateContentConfig,
     Tool,
@@ -9,6 +8,7 @@ from google.genai.types import (
     FunctionResponse,
     UserContent,
     PartUnionDict,
+    ContentListUnion,
 )
 from argparse import ArgumentParser
 from json import load, loads
@@ -66,10 +66,7 @@ if __name__ == "__main__":
         for file in args.src_file:
             parts.append(client.files.upload(file=file))
     parts.append(Part.from_bytes(data=prompt, mime_type="text/plain"))
-    contents: list[Content] = [UserContent(parts)]
-    r = Runfiles.Create()
-    if not r:
-        exit(1)
+    contents: ContentListUnion = [UserContent(parts)]
     while True:
         resp = client.models.generate_content(
             model=args.model,

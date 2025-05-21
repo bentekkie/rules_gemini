@@ -227,7 +227,6 @@ def generate_content(name, tools = None, **kwargs):
         main = Label("//src/private:generate_content.py"),
         deps = [
             Label("@pypi//google_genai"),
-            Label("@pypi//bazel_runfiles"),
         ],
         data = data,
     )
