@@ -9,11 +9,12 @@ from google.genai.types import (
     Part,
     FunctionResponse,
     UserContent,
+    PartUnionDict,
 )
 from argparse import ArgumentParser
 from json import load, loads
 from subprocess import check_output
-from typing import NamedTuple
+from typing import NamedTuple, Sequence
 
 
 class ToolInfo(NamedTuple):
@@ -60,12 +61,13 @@ if __name__ == "__main__":
 
     client = genai.Client()
 
-    contents: list[Content] = [
-        UserContent(Part.from_bytes(data=prompt, mime_type="text/plain"))
-    ]
+    parts : Sequence[PartUnionDict] = []
     if args.src_file:
         for file in args.src_file:
-            contents.append(UserContent(client.files.upload(file=file)))
+            parts.append(client.files.upload(file=file))
+    parts.append(Part.from_bytes(data=prompt, mime_type="text/plain"))
+    contents: list[Content] = [UserContent(parts)]
+    print(contents)
     r = Runfiles.Create()
     if not r:
         exit(1)
@@ -92,8 +94,8 @@ if __name__ == "__main__":
                 tool = tool_config[part.function_call.name]
                 cmd = [tool["executable"]]
                 if part.function_call.args:
-                    cmd.extend(f"{k}={v}" for k, v in part.function_call.args.items())
-                output = check_output(cmd, shell=True)
+                    cmd.extend(f"--{k}={v}" for k, v in part.function_call.args.items())
+                output = check_output(cmd)
                 response = loads(output)
                 if not isinstance(response, dict):
                     response = {"response": response}

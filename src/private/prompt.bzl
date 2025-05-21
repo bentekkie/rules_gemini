@@ -35,8 +35,6 @@ _VALID_TYPES = [
 ]
 
 def _gemini_tool_arg_implementation(ctx):
-    if not _VALID_TYPES.contains(ctx.attr.type):
-        fail("Invalid type")
     json = {
         "description": ctx.attr.description,
         "type": ctx.attr.type,
@@ -60,7 +58,7 @@ gemini_tool_arg = rule(
     implementation = _gemini_tool_arg_implementation,
     attrs = {
         "description": attr.string(),
-        "type": attr.string(),
+        "type": attr.string(values = _VALID_TYPES),
         "required": attr.string_list(),
         "nullable": attr.bool(),
         "items": attr.label(
@@ -115,7 +113,7 @@ gemini_tool = rule(
             cfg = "exec",
         ),
         "description": attr.string(),
-        "parameters": attr.label_list(
+        "parameters": attr.string_keyed_label_dict(
             providers = [GeminiToolArgInfo],
         ),
     },
