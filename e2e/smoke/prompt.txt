@@ -1,0 +1,2 @@
+Generate a python file that allows you to play snake on the command line.
+Only output the code and nothing else.
