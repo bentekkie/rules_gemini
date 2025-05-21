@@ -1,8 +1,6 @@
 name: CI
 # Controls when the action will run.
 
-env:
-  GOOGLE_API_KEY: FAKE_KEY
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
@@ -20,6 +18,7 @@ jobs:
   test:
     uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v6
     with:
+      bazel_test_command: "GOOGLE_API_KEY=FAKE_KEY bazel test //..."
       folders: |
         [
           ".",
