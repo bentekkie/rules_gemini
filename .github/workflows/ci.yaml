@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: ${{ github.ref_name != 'main' }}
 jobs:
   test:
-    uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v6
+    uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v7
     with:
       bazel_test_command: "GOOGLE_API_KEY=FAKE_KEY bazel test //..."
       folders: |
